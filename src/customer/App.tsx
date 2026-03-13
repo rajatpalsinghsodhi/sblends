@@ -29,7 +29,32 @@ import { useState, useEffect } from "react";
 const LOGO_URL = "/logobarber.png";
 const HERO_BG = "https://lh3.googleusercontent.com/aida-public/AB6AXuBUKjhi5EpnzhCsBUrAhA0Xe4GlUx6tAZHeLy8v-ES3Bd_PXd5LRC82N8ikcWShb7qZ1iYrto3SEAeeSqja8dl8duPL3ZgKZuuKC8yR-4oMN2BC-zVCDVexEFLtJbxtNogCA40Z20vZThq86EcQ447jb5dBmNjl2glItacTY5My5lou64l1BzSjABsLP5Bfmr6akUme9VmywjVQANOMo7mplFjFz8xH93QQzah4bAm0XzJ7molWkbdRRYijNca83rHC2kzLFLyjOhA";
 
-const SERVICES = [
+interface ServiceItem {
+  name: string;
+  price: string;
+  description: string;
+  durationMin?: number;
+}
+
+interface ServiceCategory {
+  category: string;
+  items: ServiceItem[];
+}
+
+interface SharedBarber {
+  id: string;
+  name: string;
+  status: "Available" | "Busy" | "Break";
+  queueLength: number;
+  nextAvailableSlotIso: string | null;
+}
+
+interface SharedCatalogResponse {
+  services: ServiceCategory[];
+  barbers: SharedBarber[];
+}
+
+const DEFAULT_SERVICES: ServiceCategory[] = [
   {
     category: "Signature Cuts",
     items: [
@@ -113,12 +138,14 @@ const REVIEWS = [
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [bookingStep, setBookingStep] = useState(0);
-  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [placeData, setPlaceData] = useState<any>(null);
   const [liveReviews, setLiveReviews] = useState<any[]>(REVIEWS);
   const [liveGallery, setLiveGallery] = useState<string[]>(GALLERY);
+  const [serviceCatalog, setServiceCatalog] = useState<ServiceCategory[]>(DEFAULT_SERVICES);
+  const [sharedBarbers, setSharedBarbers] = useState<SharedBarber[]>([]);
 
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [activeReviewIndex, setActiveReviewIndex] = useState(0);
@@ -129,6 +156,22 @@ export default function App() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const fetchSharedCatalog = async () => {
+    try {
+      const response = await fetch("/api/shared/catalog");
+      if (!response.ok) return;
+      const data = (await response.json()) as SharedCatalogResponse;
+      if (Array.isArray(data.services) && data.services.length > 0) {
+        setServiceCatalog(data.services);
+      }
+      if (Array.isArray(data.barbers)) {
+        setSharedBarbers(data.barbers);
+      }
+    } catch (error) {
+      console.error("Error fetching shared catalog:", error);
+    }
+  };
 
   // Chunk gallery into pages of 10 (newest first), max 5 pages
   const galleryPages = (() => {
@@ -181,6 +224,10 @@ export default function App() {
     setActiveGalleryPageIndex((i) => Math.min(i, galleryPages.length - 1));
   }, [galleryPages.length]);
 
+  useEffect(() => {
+    setActiveServiceIndex((i) => Math.min(i, Math.max(serviceCatalog.length - 1, 0)));
+  }, [serviceCatalog.length]);
+
   const scrollToIndex = (id: string, index: number) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -227,9 +274,14 @@ export default function App() {
 
   useEffect(() => {
     fetchPlaceDetails();
+    fetchSharedCatalog();
     // Live update: refetch every 5 min so new Google reviews/photos appear
-    const interval = setInterval(fetchPlaceDetails, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    const placeInterval = setInterval(fetchPlaceDetails, 5 * 60 * 1000);
+    const sharedInterval = setInterval(fetchSharedCatalog, 30 * 1000);
+    return () => {
+      clearInterval(placeInterval);
+      clearInterval(sharedInterval);
+    };
   }, []);
 
   const scrollTo = (id: string) => {
@@ -265,7 +317,7 @@ export default function App() {
         {bookingStep === 0 && (
           <div className="space-y-4">
             <h3 className="text-gold uppercase tracking-widest text-sm mb-4">Select a Service</h3>
-            {SERVICES.flatMap(s => s.items).map(item => (
+            {serviceCatalog.flatMap(s => s.items).map(item => (
               <button 
                 key={item.name}
                 onClick={() => { setSelectedService(item); setBookingStep(2); }}
@@ -492,6 +544,21 @@ export default function App() {
             <span className="uppercase text-sm tracking-widest">Premium Grooming Products</span>
           </div>
         </div>
+        {sharedBarbers.length > 0 && (
+          <div className="max-w-7xl mx-auto px-6 mt-10">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-4 text-center md:text-left">Live Team Availability</div>
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+              {sharedBarbers.map((barber) => (
+                <div key={barber.id} className="border border-white/10 rounded-full px-4 py-2 bg-black/20">
+                  <div className="text-sm text-white font-semibold">{barber.name}</div>
+                  <div className="text-[11px] uppercase tracking-widest text-gray-400">
+                    {barber.status} • Queue {barber.queueLength}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Services Section */}
@@ -509,7 +576,7 @@ export default function App() {
               id="services-scroll"
               className="flex lg:grid lg:grid-cols-3 gap-0 lg:gap-12 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory pb-8 lg:pb-0 scrollbar-hide"
             >
-              {SERVICES.map((cat, idx) => (
+              {serviceCatalog.map((cat, idx) => (
                 <motion.div 
                   key={cat.category}
                   initial={{ opacity: 0, y: 20 }}
@@ -536,7 +603,7 @@ export default function App() {
             
             {/* Instagram-style Dots */}
             <div className="lg:hidden flex justify-center gap-2 mt-6">
-              {SERVICES.map((_, idx) => (
+              {serviceCatalog.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => scrollToIndex('services-scroll', idx)}
@@ -692,7 +759,8 @@ export default function App() {
                     src={loc.mapUrl} 
                     width="100%" 
                     height="100%" 
-                    style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) brightness(0.8)" }} 
+                    className="border-0 filter-[invert(90%)_hue-rotate(180deg)_brightness(0.8)]"
+                    title={`${loc.name} location map`}
                     allowFullScreen 
                     loading="lazy"
                   />
@@ -745,10 +813,10 @@ export default function App() {
                 </a>
               </div>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold transition-all">
+                <a href="#" title="Instagram" aria-label="Instagram" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold transition-all">
                   <Instagram size={18} />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold transition-all">
+                <a href="#" title="Facebook" aria-label="Facebook" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold transition-all">
                   <Facebook size={18} />
                 </a>
               </div>

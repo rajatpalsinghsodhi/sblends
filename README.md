@@ -40,3 +40,65 @@ View your app in AI Studio: https://ai.studio/apps/524b4f24-195e-48c6-9291-eb6a4
    ```
 
 Without a valid API key, the app shows fallback placeholder data. With a valid key, it fetches **real reviews and photos** from your Google Business listing.
+
+## Owner Dashboard (Internal)
+
+The owner/staff dashboard is built inside the same app and served from:
+
+- `/owner`
+
+It shares the same noir + gold visual theme and is optimized for desktop operations (with tablet responsiveness).
+
+### Implemented Architecture
+
+- Dashboard is part of the main app (same frontend + server)
+- Role-based authentication: `Admin`, `Barber`, `Reception`
+- Real-time updates via SSE (`/api/owner/stream`) with 5-second polling fallback
+- Notification integrations:
+   - SMS via Vonage
+   - Email via SendGrid
+- Designed to deploy on Railway free tier as a single service
+
+### Role Login
+
+Use the `/owner` login form.
+
+Environment variables for role PINs:
+
+```
+OWNER_ADMIN_PIN=1111
+OWNER_BARBER_PIN=2222
+OWNER_RECEPTION_PIN=3333
+```
+
+If these are not set, the defaults above are used locally.
+
+### Notification Configuration
+
+Add these for live notification sending:
+
+```
+VONAGE_API_KEY=...
+VONAGE_API_SECRET=...
+VONAGE_FROM=SBLENDS
+
+SENDGRID_API_KEY=...
+SENDGRID_FROM_EMAIL=notifications@sblends.com
+```
+
+If missing, sends are logged as failed in the dashboard notification log.
+
+### Dashboard Feature Coverage
+
+- Barber status overview (available / busy / break, current customer, estimated finish, queue length)
+- Live queue management (add walk-in, assign barber, reorder, remove)
+- Appointment management (today, in-progress, completed, no-shows, quick actions)
+- Real-time operational updates (SSE + polling)
+- Notification panel (SMS/email triggers + log history)
+- Basic analytics (today bookings, walk-ins vs appointments, peak hours, barber performance)
+
+### Railway Notes
+
+- Keep `npm run dev` for development.
+- On Railway free tier, use `npm start` as the service start command.
+- Set all required env vars in Railway service settings.
