@@ -88,6 +88,28 @@ SENDGRID_FROM_EMAIL=notifications@sblends.com
 
 If missing, sends are logged as failed in the dashboard notification log.
 
+### Booksy Through Google Calendar
+
+To sync Booksy appointments through Google Calendar, configure:
+
+GOOGLE_BOOKSY_CLIENT_ID=...
+GOOGLE_BOOKSY_CLIENT_SECRET=...
+GOOGLE_BOOKSY_REDIRECT_URI=http://localhost:3001/api/owner/booksy/google/callback
+BOOKSY_GOOGLE_CALENDAR_IDS=b1:calendar1@group.calendar.google.com,b2:calendar2@group.calendar.google.com
+BOOKSY_SYNC_INTERVAL_MS=45000
+
+Optional owner alerts for newly imported Booksy appointments:
+
+OWNER_NOTIFICATION_PHONE=+1...
+OWNER_NOTIFICATION_EMAIL=owner@example.com
+
+Owner endpoints:
+
+- GET /api/owner/booksy/status
+- GET /api/owner/booksy/google/auth-url
+- GET /api/owner/booksy/google/callback
+- POST /api/owner/booksy/sync-now
+
 ### Dashboard Feature Coverage
 
 - Barber status overview (available / busy / break, current customer, estimated finish, queue length)

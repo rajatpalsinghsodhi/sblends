@@ -81,7 +81,7 @@ interface Appointment {
   serviceType: string;
   durationMin: number;
   status: AppointmentStatus;
-  source: "walk-in" | "appointment";
+  source: "walk-in" | "appointment" | "booksy";
   assignedBarberId: string | null;
   scheduledAt: string;
   startedAt: string | null;
@@ -103,6 +103,8 @@ interface Analytics {
   totalBookingsToday: number;
   walkIns: number;
   appointments: number;
+  directAppointments?: number;
+  booksyAppointments?: number;
   peakHours: Array<{ hour: string; count: number }>;
   barberPerformance: Array<{
     barberId: string;
@@ -252,6 +254,18 @@ function statusClass(status: BarberStatus | AppointmentStatus) {
   if (status === "Break" || status === "cancelled") return "bg-slate-500/20 text-slate-300 border-slate-400/40";
   if (status === "queued" || status === "scheduled") return "bg-sky-500/20 text-sky-300 border-sky-400/40";
   return "bg-rose-500/20 text-rose-300 border-rose-400/40";
+}
+
+function sourceClass(source: Appointment["source"]) {
+  if (source === "booksy") return "bg-cyan-500/20 text-cyan-300 border-cyan-400/40";
+  if (source === "appointment") return "bg-violet-500/20 text-violet-300 border-violet-400/40";
+  return "bg-amber-500/20 text-amber-300 border-amber-400/40";
+}
+
+function sourceLabel(source: Appointment["source"]) {
+  if (source === "booksy") return "Booksy";
+  if (source === "appointment") return "Direct";
+  return "Walk-in";
 }
 
 export default function OwnerDashboard() {
@@ -1667,7 +1681,9 @@ export default function OwnerDashboard() {
                     <div className="text-xs text-gray-500">{formatTime(appointment.scheduledAt)}</div>
                   </div>
                   <span className="text-gray-300">{appointment.serviceType}</span>
-                  <span className="text-gray-300 uppercase tracking-wide text-xs">{appointment.source}</span>
+                  <span className={`w-max px-2.5 py-1 text-xs font-semibold rounded-full border ${sourceClass(appointment.source)}`}>
+                    {sourceLabel(appointment.source)}
+                  </span>
                   <span className={`w-max px-2.5 py-1 text-xs font-semibold rounded-full border ${statusClass(appointment.status)}`}>
                     {appointment.status}
                   </span>
@@ -1708,7 +1724,10 @@ export default function OwnerDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <MetricCard title="Total Bookings Today" value={state?.analytics.totalBookingsToday || 0} />
-              <MetricCard title="Walk-ins vs Appointments" value={`${state?.analytics.walkIns || 0} / ${state?.analytics.appointments || 0}`} />
+              <MetricCard
+                title="Source Split (Walk-in / Direct / Booksy)"
+                value={`${state?.analytics.walkIns || 0} / ${(state?.analytics.directAppointments ?? state?.analytics.appointments ?? 0)} / ${state?.analytics.booksyAppointments || 0}`}
+              />
               <MetricCard
                 title="Peak Hour"
                 value={state?.analytics.peakHours[0] ? `${state.analytics.peakHours[0].hour} (${state.analytics.peakHours[0].count})` : "-"}

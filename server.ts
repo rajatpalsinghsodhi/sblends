@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { randomUUID } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
+import { google } from "googleapis";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ const SERVICE_DURATION_HINTS: Record<string, number> = Object.fromEntries(
 type Role = "Admin" | "Barber" | "Reception";
 type BarberStatus = "Available" | "Busy" | "Break";
 type AppointmentStatus = "scheduled" | "queued" | "in-progress" | "completed" | "cancelled" | "no-show";
+type AppointmentSource = "walk-in" | "appointment" | "booksy";
 
 interface ShiftLogEntry {
   workedStart: string;
@@ -114,11 +116,13 @@ interface Appointment {
   serviceType: string;
   durationMin: number;
   status: AppointmentStatus;
-  source: "walk-in" | "appointment";
+  source: AppointmentSource;
   assignedBarberId: string | null;
   scheduledAt: string;
   startedAt: string | null;
   finishedAt: string | null;
+  externalEventId?: string;
+  externalCalendarId?: string;
 }
 
 interface NotificationLog {
@@ -242,6 +246,27 @@ barbers[0].estimatedFinishTime = inMinutes(32);
 
 const notificationLogs: NotificationLog[] = [];
 const sseClients = new Set<Response>();
+const googleOAuthStates = new Set<string>();
+
+let booksyGoogleTokens: Record<string, unknown> | null = null;
+let booksyLastSyncAt: string | null = null;
+let booksyLastSyncError: string | null = null;
+
+const BOOKSY_SYNC_INTERVAL_MS = Number(process.env.BOOKSY_SYNC_INTERVAL_MS || 45_000);
+
+function parseBooksyCalendarMap(raw: string | undefined) {
+  const map: Record<string, string> = {};
+  for (const token of (raw || "").split(",")) {
+    const chunk = token.trim();
+    if (!chunk) continue;
+    const [barberId, calendarId] = chunk.split(":").map((p) => p.trim());
+    if (!barberId || !calendarId) continue;
+    map[barberId] = calendarId;
+  }
+  return map;
+}
+
+const BOOKSY_CALENDAR_MAP = parseBooksyCalendarMap(process.env.BOOKSY_GOOGLE_CALENDAR_IDS);
 
 function getRolePins() {
   return {
@@ -294,7 +319,8 @@ function buildAnalytics() {
   const todays = appointments.filter((a) => isTodayIso(a.scheduledAt));
   const totalBookingsToday = todays.length;
   const walkIns = todays.filter((a) => a.source === "walk-in").length;
-  const regularAppointments = todays.filter((a) => a.source === "appointment").length;
+  const directAppointments = todays.filter((a) => a.source === "appointment").length;
+  const booksyAppointments = todays.filter((a) => a.source === "booksy").length;
 
   const hourBuckets: Record<string, number> = {};
   for (const a of todays) {
@@ -322,9 +348,203 @@ function buildAnalytics() {
   return {
     totalBookingsToday,
     walkIns,
-    appointments: regularAppointments,
+    appointments: directAppointments + booksyAppointments,
+    directAppointments,
+    booksyAppointments,
     peakHours,
     barberPerformance,
+  };
+}
+
+function getBooksyOAuthClient(port: number) {
+  const clientId = process.env.GOOGLE_BOOKSY_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_BOOKSY_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return null;
+  }
+  const redirectUri =
+    process.env.GOOGLE_BOOKSY_REDIRECT_URI ||
+    `http://localhost:${port}/api/owner/booksy/google/callback`;
+  return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+}
+
+function parseGoogleEventDate(isoLike?: string | null) {
+  if (!isoLike) return null;
+  const parsed = Date.parse(isoLike);
+  return Number.isNaN(parsed) ? null : new Date(parsed);
+}
+
+function parseServiceTypeFromDescription(description: string | null | undefined) {
+  if (!description) return "Booksy Booking";
+  const lines = description.split(/\r?\n/).map((line) => line.trim());
+  const serviceLine = lines.find((line) => /^service\s*:/i.test(line));
+  if (!serviceLine) return "Booksy Booking";
+  const [, value] = serviceLine.split(/:/, 2);
+  return value?.trim() || "Booksy Booking";
+}
+
+async function notifyBooksyImport(newCount: number) {
+  if (newCount <= 0) return;
+  const body = `Imported ${newCount} new Booksy appointment${newCount === 1 ? "" : "s"} from Google Calendar.`;
+  const sentAt = new Date().toISOString();
+
+  const ownerPhone = process.env.OWNER_NOTIFICATION_PHONE;
+  if (ownerPhone) {
+    const smsResult = await sendVonageSms(ownerPhone, body);
+    notificationLogs.push({
+      id: randomUUID(),
+      channel: "sms",
+      recipient: ownerPhone,
+      message: body,
+      status: smsResult.sent ? "sent" : "failed",
+      provider: "vonage",
+      error: smsResult.error,
+      createdAt: sentAt,
+    });
+  }
+
+  const ownerEmail = process.env.OWNER_NOTIFICATION_EMAIL;
+  if (ownerEmail) {
+    const emailResult = await sendSendgridEmail(ownerEmail, "Booksy Sync Update", body);
+    notificationLogs.push({
+      id: randomUUID(),
+      channel: "email",
+      recipient: ownerEmail,
+      message: body,
+      status: emailResult.sent ? "sent" : "failed",
+      provider: "sendgrid",
+      error: emailResult.error,
+      createdAt: sentAt,
+    });
+  }
+}
+
+async function syncBooksyFromGoogleCalendar(port: number, trigger: "manual" | "interval" | "oauth") {
+  const oauthClient = getBooksyOAuthClient(port);
+  if (!oauthClient) {
+    return { ok: false, skipped: true, reason: "Google OAuth client not configured" };
+  }
+  if (!booksyGoogleTokens) {
+    return { ok: false, skipped: true, reason: "Google Calendar is not connected" };
+  }
+
+  const mappedCalendars = Object.entries(BOOKSY_CALENDAR_MAP);
+  if (mappedCalendars.length === 0) {
+    return { ok: false, skipped: true, reason: "BOOKSY_GOOGLE_CALENDAR_IDS is not configured" };
+  }
+
+  oauthClient.setCredentials(booksyGoogleTokens);
+  oauthClient.on("tokens", (tokens) => {
+    booksyGoogleTokens = {
+      ...(booksyGoogleTokens || {}),
+      ...tokens,
+    };
+  });
+
+  const calendar = google.calendar({ version: "v3", auth: oauthClient });
+  const nowMs = Date.now();
+  const windowStart = new Date(nowMs - 6 * 60 * 60_000).toISOString();
+  const windowEnd = new Date(nowMs + 14 * 24 * 60 * 60_000).toISOString();
+
+  const seenExternalIds = new Set<string>();
+  let importedCount = 0;
+  let updatedCount = 0;
+
+  for (const [barberId, calendarId] of mappedCalendars) {
+    const barber = barbers.find((b) => b.id === barberId);
+    if (!barber) continue;
+
+    const eventResponse = await calendar.events.list({
+      calendarId,
+      timeMin: windowStart,
+      timeMax: windowEnd,
+      singleEvents: true,
+      showDeleted: true,
+      orderBy: "startTime",
+      maxResults: 250,
+    });
+
+    for (const event of eventResponse.data.items || []) {
+      if (!event.id) continue;
+
+      const startDate = parseGoogleEventDate(event.start?.dateTime || event.start?.date || null);
+      const endDate = parseGoogleEventDate(event.end?.dateTime || event.end?.date || null);
+      if (!startDate) continue;
+
+      const durationMin = Math.max(
+        10,
+        Math.round(((endDate?.getTime() || startDate.getTime() + DEFAULT_SERVICE_DURATION_MIN * 60_000) - startDate.getTime()) / 60_000)
+      );
+      const normalizedCustomer = (event.summary || "Booksy Client").trim();
+      const serviceType = parseServiceTypeFromDescription(event.description);
+      const cancelled = event.status === "cancelled";
+
+      const existing = appointments.find(
+        (a) => a.source === "booksy" && a.externalEventId === event.id
+      );
+
+      seenExternalIds.add(`${calendarId}:${event.id}`);
+
+      if (existing) {
+        if (!["completed", "no-show"].includes(existing.status)) {
+          existing.customerName = normalizedCustomer;
+          existing.serviceType = serviceType;
+          existing.durationMin = durationMin;
+          existing.assignedBarberId = barberId;
+          existing.scheduledAt = startDate.toISOString();
+          existing.externalCalendarId = calendarId;
+          existing.status = cancelled ? "cancelled" : existing.status === "in-progress" ? "in-progress" : "scheduled";
+          if (cancelled) {
+            existing.finishedAt = new Date().toISOString();
+          }
+          updatedCount += 1;
+        }
+        continue;
+      }
+
+      if (cancelled) {
+        continue;
+      }
+
+      appointments.push({
+        id: randomUUID(),
+        customerName: normalizedCustomer,
+        serviceType,
+        durationMin,
+        status: "scheduled",
+        source: "booksy",
+        assignedBarberId: barberId,
+        scheduledAt: startDate.toISOString(),
+        startedAt: null,
+        finishedAt: null,
+        externalEventId: event.id,
+        externalCalendarId: calendarId,
+      });
+      importedCount += 1;
+    }
+  }
+
+  for (const appointment of appointments) {
+    if (appointment.source !== "booksy") continue;
+    if (!appointment.externalEventId || !appointment.externalCalendarId) continue;
+    const externalKey = `${appointment.externalCalendarId}:${appointment.externalEventId}`;
+    if (seenExternalIds.has(externalKey)) continue;
+    if (["completed", "cancelled", "no-show"].includes(appointment.status)) continue;
+    appointment.status = "cancelled";
+    appointment.finishedAt = new Date().toISOString();
+  }
+
+  await notifyBooksyImport(importedCount);
+
+  booksyLastSyncAt = new Date().toISOString();
+  booksyLastSyncError = null;
+  broadcastOwnerState();
+  return {
+    ok: true,
+    trigger,
+    importedCount,
+    updatedCount,
+    syncedAt: booksyLastSyncAt,
   };
 }
 
@@ -731,6 +951,78 @@ async function startServer() {
 
   app.get("/api/owner/barbers", requireAuth, requireRoles(["Admin"]), (_req, res) => {
     res.json(barbers);
+  });
+
+  app.get("/api/owner/booksy/status", requireAuth, requireRoles(["Admin"]), (_req, res) => {
+    const hasOAuthConfig = Boolean(process.env.GOOGLE_BOOKSY_CLIENT_ID && process.env.GOOGLE_BOOKSY_CLIENT_SECRET);
+    const mappedCalendars = Object.entries(BOOKSY_CALENDAR_MAP).map(([barberId, calendarId]) => ({
+      barberId,
+      calendarId,
+      barberName: barbers.find((b) => b.id === barberId)?.name || barberId,
+    }));
+    res.json({
+      hasOAuthConfig,
+      connected: Boolean(booksyGoogleTokens),
+      mappedCalendars,
+      lastSyncAt: booksyLastSyncAt,
+      lastSyncError: booksyLastSyncError,
+      intervalMs: BOOKSY_SYNC_INTERVAL_MS,
+    });
+  });
+
+  app.get("/api/owner/booksy/google/auth-url", requireAuth, requireRoles(["Admin"]), (_req, res) => {
+    const oauthClient = getBooksyOAuthClient(PORT);
+    if (!oauthClient) {
+      return res.status(500).json({ error: "Google OAuth is not configured" });
+    }
+
+    const state = randomUUID();
+    googleOAuthStates.add(state);
+    const url = oauthClient.generateAuthUrl({
+      access_type: "offline",
+      prompt: "consent",
+      scope: ["https://www.googleapis.com/auth/calendar.readonly"],
+      state,
+    });
+    return res.json({ url, state });
+  });
+
+  app.get("/api/owner/booksy/google/callback", async (req, res) => {
+    const oauthClient = getBooksyOAuthClient(PORT);
+    if (!oauthClient) {
+      return res.status(500).send("Google OAuth is not configured.");
+    }
+    const code = String(req.query.code || "");
+    const state = String(req.query.state || "");
+    if (!code || !state || !googleOAuthStates.has(state)) {
+      return res.status(400).send("Invalid OAuth callback state.");
+    }
+    googleOAuthStates.delete(state);
+
+    try {
+      const tokenResponse = await oauthClient.getToken(code);
+      booksyGoogleTokens = {
+        ...(booksyGoogleTokens || {}),
+        ...(tokenResponse.tokens || {}),
+      };
+      const syncResult = await syncBooksyFromGoogleCalendar(PORT, "oauth");
+      return res.send(`Booksy Google Calendar connected successfully. Imported ${syncResult.ok ? syncResult.importedCount : 0} new appointments. You can close this tab.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown OAuth error";
+      booksyLastSyncError = message;
+      return res.status(500).send(`OAuth setup failed: ${message}`);
+    }
+  });
+
+  app.post("/api/owner/booksy/sync-now", requireAuth, requireRoles(["Admin"]), async (_req, res) => {
+    try {
+      const syncResult = await syncBooksyFromGoogleCalendar(PORT, "manual");
+      res.json(syncResult);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Booksy sync failed";
+      booksyLastSyncError = message;
+      res.status(500).json({ ok: false, error: message });
+    }
   });
 
   app.post("/api/owner/walkins/availability", requireAuth, requireRoles(["Admin"]), (req, res) => {
@@ -1374,6 +1666,14 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
+
+  setInterval(async () => {
+    try {
+      await syncBooksyFromGoogleCalendar(PORT, "interval");
+    } catch (error) {
+      booksyLastSyncError = error instanceof Error ? error.message : "Booksy sync interval failed";
+    }
+  }, BOOKSY_SYNC_INTERVAL_MS);
 }
 
 startServer();
