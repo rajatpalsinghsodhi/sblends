@@ -1,0 +1,5 @@
+{
+  "name": "S.Blends Barbershop",
+  "description": "Luxury grooming destination blending traditional barbering with modern skincare. Precision, Atmosphere, Excellence.",
+  "requestFramePermissions": ["geolocation"]
+}

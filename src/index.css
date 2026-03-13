@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cinzel Decorative", serif;
+  --font-serif: "Playfair Display", serif;
+  --font-body: "Lato", sans-serif;
+  
+  --color-gold: #D4AF37;
+  --color-gold-light: #FDD835;
+  --color-gold-dark: #B38728;
+  --color-noir: #0A0A0A;
+  --color-noir-light: #121212;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-noir text-gray-200 font-body;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-display tracking-widest;
+  }
+}
+
+.gold-gradient-text {
+  background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.marble-overlay {
+  background-image: url('https://www.transparenttextures.com/patterns/black-mamba.png');
+}
