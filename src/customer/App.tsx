@@ -874,9 +874,11 @@ export default function App() {
 
           <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-[0.2em] text-gray-600">
             <p>© 2026 S.Blends Barbershop. All rights reserved.</p>
-            <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            <div className="flex flex-wrap justify-center gap-8">
+              <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</a>
+              <a href="/email-sms-compliance" className="hover:text-white transition-colors">Email &amp; SMS Compliance</a>
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@
     display: none;
   }
 }
-
+  
 @layer base {
   body {
     @apply bg-noir text-gray-200 font-body;

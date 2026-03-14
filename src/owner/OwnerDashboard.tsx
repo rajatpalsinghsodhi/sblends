@@ -149,7 +149,7 @@ const ENABLE_LIVE_QUEUE_UI = false;
 const COMPANY_LOGO = "/logobarber.png";
 
 const sectionItems = [
-  { id: "all", label: "Business Overview", icon: Layers },
+  { id: "all", label: "Daily Operations", icon: Layers },
   { id: "team", label: "Barber Team", icon: Users },
   { id: "schedule", label: "Schedule Manager", icon: CalendarDays },
   { id: "payroll", label: "Payroll", icon: Briefcase },
@@ -209,19 +209,12 @@ function shiftDateKey(dateKey: string, days: number) {
   return toDateKey(d);
 }
 
-function getTemplateShiftForDate(barber: Barber, dateKey: string) {
-  const d = new Date(`${dateKey}T00:00:00`);
-  const dayLabel = d.toLocaleDateString("en-US", { weekday: "short" });
-  return barber.schedule.find((row) => row.day === dayLabel) || { day: dayLabel, start: "10:00", end: "20:00", off: false };
-}
-
 function getShiftForDate(barber: Barber, dateKey: string) {
   const byDate = barber.scheduleByDate?.[dateKey];
   if (byDate) return byDate;
   const previousWeekShift = barber.scheduleByDate?.[shiftDateKey(dateKey, -7)];
   if (previousWeekShift) return previousWeekShift;
-  const template = getTemplateShiftForDate(barber, dateKey);
-  return { start: template.start, end: template.end, off: template.off };
+  return { start: "", end: "", off: false };
 }
 
 function formatDateLabel(dateKey: string) {
@@ -284,11 +277,6 @@ export default function OwnerDashboard() {
   const [newBarberName, setNewBarberName] = useState("");
   const [teamToolMode, setTeamToolMode] = useState<"database" | "schedule">("database");
   const [weekStartKey, setWeekStartKey] = useState(() => toDateKey(getWeekStart(new Date())));
-  const [copyWeekStartKey, setCopyWeekStartKey] = useState(() => {
-    const prevWeek = getWeekStart(new Date());
-    prevWeek.setDate(prevWeek.getDate() - 7);
-    return toDateKey(prevWeek);
-  });
   const [scheduleEditMode, setScheduleEditMode] = useState(false);
   const [payrollEditMode, setPayrollEditMode] = useState(false);
   const [bannerMessage, setBannerMessage] = useState("");
@@ -318,17 +306,9 @@ export default function OwnerDashboard() {
   const canManageQueue = user?.role === "Admin";
   const canManageAppointments = Boolean(user);
   const showAllSections = activeSection === "all";
+  const currentWeekStartKey = useMemo(() => toDateKey(getWeekStart(new Date())), []);
   const weekDateKeys = useMemo(() => getWeekDateKeys(weekStartKey), [weekStartKey]);
   const pastShiftDateKeys = useMemo(() => getPastDateKeys(14), []);
-  const pastWeekOptions = useMemo(() => {
-    const currentWeekStart = new Date(`${weekStartKey}T00:00:00`);
-    return Array.from({ length: 6 }, (_, idx) => {
-      const d = new Date(currentWeekStart);
-      d.setDate(currentWeekStart.getDate() - (idx + 1) * 7);
-      const key = toDateKey(d);
-      return { key, label: `Week of ${formatDateLabel(key)}` };
-    });
-  }, [weekStartKey]);
 
   const onSectionSelect = (sectionId: string) => {
     if (sectionId === "schedule") {
@@ -638,33 +618,6 @@ export default function OwnerDashboard() {
                 [field]: value,
               },
             },
-          };
-        }),
-      };
-    });
-  };
-
-  const copyWeekIntoCurrent = () => {
-    setState((prev) => {
-      if (!prev) return prev;
-      const sourceDateKeys = getWeekDateKeys(copyWeekStartKey);
-      return {
-        ...prev,
-        barbers: prev.barbers.map((barber) => {
-          const nextScheduleByDate = { ...(barber.scheduleByDate || {}) };
-          weekDateKeys.forEach((targetDate, idx) => {
-            const sourceDate = sourceDateKeys[idx];
-            const sourceShift = getShiftForDate(barber, sourceDate);
-            if (!sourceShift) return;
-            nextScheduleByDate[targetDate] = {
-              start: sourceShift.start,
-              end: sourceShift.end,
-              off: sourceShift.off,
-            };
-          });
-          return {
-            ...barber,
-            scheduleByDate: nextScheduleByDate,
           };
         }),
       };
@@ -1122,82 +1075,10 @@ export default function OwnerDashboard() {
             </div>
           </SmoothSection>
 
-          <SmoothSection show={showAllSections || activeSection === "team"} id="team" className="space-y-4">
+          <SmoothSection show={activeSection === "team"} id="team" className="space-y-4">
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
-              <h2 className="text-xl lg:text-2xl text-white font-display">Barber Team & Schedule</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full xl:w-auto">
-                <button
-                  onClick={() => {
-                    const d = new Date(`${weekStartKey}T00:00:00`);
-                    d.setDate(d.getDate() - 7);
-                    setWeekStartKey(toDateKey(d));
-                  }}
-                  className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
-                  title="Previous Week"
-                  aria-label="Previous Week"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => {
-                    setWeekStartKey(toDateKey(getWeekStart(new Date())));
-                  }}
-                  className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
-                  title="Current Week"
-                  aria-label="Current Week"
-                >
-                  <CalendarDays size={16} />
-                </button>
-                <button
-                  onClick={() => {
-                    const d = new Date(`${weekStartKey}T00:00:00`);
-                    d.setDate(d.getDate() + 7);
-                    setWeekStartKey(toDateKey(d));
-                  }}
-                  className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
-                  title="Next Week"
-                  aria-label="Next Week"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
+              <h2 className="text-xl lg:text-2xl text-white font-display">Barber Team</h2>
             </div>
-
-            {showAllSections && (
-              <div className="space-y-4">
-                <div className="bg-noir-light border border-white/10 rounded-2xl p-4 overflow-x-auto">
-                  <div className="min-w-[860px]">
-                    <div className="grid grid-cols-[170px_repeat(7,minmax(0,1fr))] gap-2 text-[11px] uppercase tracking-widest text-gray-500 mb-2">
-                      <span className="px-2">Barber</span>
-                      {weekDateKeys.map((dateKey) => (
-                        <span key={dateKey} className="px-2 text-center">{formatDateLabel(dateKey)}</span>
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      {(state?.barbers || []).map((barber) => (
-                        <div key={barber.id} className="grid grid-cols-[170px_repeat(7,minmax(0,1fr))] gap-2 items-stretch">
-                          <div className="bg-black/25 border border-white/5 rounded-lg px-3 py-2 flex items-center justify-between">
-                            <span className="text-white font-semibold text-sm">{barber.name}</span>
-                            <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border ${statusClass(barber.status)}`}>
-                              {barber.status}
-                            </span>
-                          </div>
-                          {weekDateKeys.map((dateKey) => {
-                            const shift = getShiftForDate(barber, dateKey);
-                            return (
-                              <div key={`${barber.id}-${dateKey}`} className="bg-black/25 border border-white/5 rounded-lg px-2 py-2 text-center">
-                                <div className="text-xs text-white font-semibold">{shift.off ? "Off" : `${shift.start} - ${shift.end}`}</div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            )}
 
             {!showAllSections && teamToolMode === "database" && (
               <>
@@ -1298,7 +1179,80 @@ export default function OwnerDashboard() {
 
           <SmoothSection show={activeSection === "schedule"} id="schedule" className="space-y-4">
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
-              <h2 className="text-xl lg:text-2xl text-white font-display">Schedule Manager</h2>
+              <h2 className="text-xl lg:text-2xl text-white font-display">Barber Team & Schedule</h2>
+              <div className="flex flex-col sm:flex-row xl:items-center gap-2 w-full xl:w-auto xl:justify-end">
+                <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => {
+                      const d = new Date(`${weekStartKey}T00:00:00`);
+                      d.setDate(d.getDate() - 7);
+                      setWeekStartKey(toDateKey(d));
+                    }}
+                    className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
+                    title="Previous Week"
+                    aria-label="Previous Week"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setWeekStartKey(toDateKey(getWeekStart(new Date())));
+                    }}
+                    className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
+                    title="Current Week"
+                    aria-label="Current Week"
+                  >
+                    <CalendarDays size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const d = new Date(`${weekStartKey}T00:00:00`);
+                      d.setDate(d.getDate() + 7);
+                      setWeekStartKey(toDateKey(d));
+                    }}
+                    className="text-xs rounded-lg px-3 py-2 border border-white/15 text-gray-200 hover:bg-white/5 inline-flex items-center justify-center"
+                    title="Next Week"
+                    aria-label="Next Week"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="bg-noir-light border border-white/10 rounded-2xl p-4 overflow-x-auto">
+              <div className="min-w-[860px]">
+                <div className="grid grid-cols-[170px_repeat(7,minmax(0,1fr))] gap-2 text-[11px] uppercase tracking-widest text-gray-500 mb-2">
+                  <span className="px-2">Barber</span>
+                  {weekDateKeys.map((dateKey) => (
+                    <span key={dateKey} className="px-2 text-center">{formatDateLabel(dateKey)}</span>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  {(state?.barbers || []).map((barber) => (
+                    <div key={barber.id} className="grid grid-cols-[170px_repeat(7,minmax(0,1fr))] gap-2 items-stretch">
+                      <div className="bg-black/25 border border-white/5 rounded-lg px-3 py-2 flex items-center justify-between">
+                        <span className="text-white font-semibold text-sm">{barber.name}</span>
+                        <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border ${statusClass(barber.status)}`}>
+                          {barber.status}
+                        </span>
+                      </div>
+                      {weekDateKeys.map((dateKey) => {
+                        const shift = getShiftForDate(barber, dateKey);
+                        return (
+                          <div key={`${barber.id}-${dateKey}`} className="bg-black/25 border border-white/5 rounded-lg px-2 py-2 text-center">
+                            <div className="text-xs text-white font-semibold">{shift.off ? "Off" : `${shift.start} - ${shift.end}`}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2">
                 {!scheduleEditMode ? (
                   <button
@@ -1333,29 +1287,6 @@ export default function OwnerDashboard() {
                   Print
                 </button>
               </div>
-            </div>
-
-            <div className="bg-noir-light border border-white/10 rounded-2xl p-4 flex flex-col lg:flex-row lg:items-end gap-3">
-              <label className="text-sm text-gray-300 w-full lg:max-w-sm">
-                Copy To Current Week From
-                <select
-                  value={copyWeekStartKey}
-                  onChange={(e) => setCopyWeekStartKey(e.target.value)}
-                  className="mt-2 w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2"
-                  disabled={!scheduleEditMode}
-                >
-                  {pastWeekOptions.map((opt) => (
-                    <option key={opt.key} value={opt.key}>{opt.label}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                onClick={copyWeekIntoCurrent}
-                disabled={!scheduleEditMode}
-                className="w-full lg:w-auto border border-white/15 rounded-lg px-3 py-2 text-xs uppercase tracking-widest hover:bg-white/5 disabled:opacity-40"
-              >
-                Copy Week
-              </button>
             </div>
 
             <div className="space-y-4">
@@ -1719,7 +1650,7 @@ export default function OwnerDashboard() {
             </div>
           </SmoothSection>
 
-          <SmoothSection show={showAllSections || activeSection === "analytics"} id="analytics" className="space-y-4 pb-8">
+          <SmoothSection show={activeSection === "analytics"} id="analytics" className="space-y-4 pb-8">
             <h2 className="text-xl lg:text-2xl text-white font-display">Business Insights</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
