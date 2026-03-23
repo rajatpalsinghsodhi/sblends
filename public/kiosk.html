@@ -643,6 +643,139 @@
     padding: 3px 11px; border-radius: 12px;
     text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 10px;
   }
+
+  /* MOBILE QUEUE FAB */
+  .queue-fab {
+    display: none; position: fixed; bottom: 20px; right: 20px; z-index: 50;
+    background: var(--gold); color: var(--black); border: none;
+    border-radius: 50px; padding: 12px 18px; min-height: 48px;
+    font-size: 12px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; touch-action: manipulation;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.3);
+    align-items: center; gap: 8px;
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+
+  .queue-fab:active { transform: scale(0.96); }
+
+  .queue-fab-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--black); opacity: 0.5;
+    animation: pulse 2s infinite;
+  }
+
+  /* MOBILE QUEUE SHEET */
+  .queue-sheet-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 80;
+    background: rgba(8,7,6,0.7); backdrop-filter: blur(6px);
+    opacity: 0; transition: opacity 0.25s ease;
+  }
+
+  .queue-sheet-backdrop.show { opacity: 1; }
+
+  .queue-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 81;
+    background: var(--black); border-top: 1px solid var(--border-md);
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh; display: flex; flex-direction: column;
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    pointer-events: none;
+  }
+
+  .queue-sheet.show { transform: translateY(0); pointer-events: all; }
+
+  .queue-sheet-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--border-md); margin: 10px auto 0; flex-shrink: 0;
+  }
+
+  .queue-sheet .q-header { padding: 16px 20px 14px; }
+  .queue-sheet .q-list { max-height: 45vh; }
+  .queue-sheet .q-footer { padding: 10px 20px; }
+
+  /* ===================== RESPONSIVE ===================== */
+
+  /* Tablets in portrait / small tablets */
+  @media (max-width: 900px) {
+    .kiosk { grid-template-columns: 1fr 340px; }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .kiosk {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+    }
+
+    .right-panel { display: none; }
+    .queue-fab { display: flex; }
+    .queue-sheet-backdrop.show { display: block; }
+
+    .left-panel {
+      padding: 20px 20px 16px;
+      border-right: none;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    .left-header { margin-bottom: 14px; }
+
+    .brand-mark { width: 36px; height: 36px; border-radius: 9px; }
+    .brand-mark img { width: 28px; height: 28px; }
+    .brand-name { font-size: 18px; }
+    .brand-sub { font-size: 9px; }
+
+    .live-pill { padding: 5px 10px; font-size: 10px; }
+
+    .step-nav { margin-bottom: 12px; gap: 10px; }
+    .back-btn { width: 34px; height: 34px; }
+
+    .step-heading { font-size: 26px; margin-bottom: 14px; }
+    .step-sub { font-size: 11px; margin-bottom: 12px; }
+
+    .type-toggle { margin-bottom: 16px; }
+    .type-btn { padding: 10px 8px; font-size: 10px; }
+
+    .field { margin-bottom: 14px; }
+    .finput { padding: 11px 13px; min-height: 46px; font-size: 16px; }
+
+    .cat-tabs { gap: 5px; margin-bottom: 10px; }
+    .cat-tab { padding: 9px 5px; min-height: 42px; font-size: 10px; }
+
+    .svc-grid { gap: 7px; }
+    .svc-card { padding: 11px 10px; min-height: 54px; }
+    .svc-name { font-size: 11px; }
+    .svc-detail { font-size: 10px; }
+
+    .barber-cards { grid-template-columns: 1fr 1fr; gap: 7px; }
+    .barber-card { padding: 10px 9px; min-height: 80px; }
+    .any-barber-card { padding: 10px 12px; min-height: 50px; gap: 10px; }
+
+    .join-btn { padding: 14px; min-height: 48px; font-size: 12px; }
+    .step-footer { padding-top: 10px; }
+
+    /* Confirmation overlay */
+    .c-card { padding: 28px 24px; border-radius: 18px; }
+    .c-icon { width: 56px; height: 56px; margin-bottom: 16px; }
+    .c-icon svg { width: 26px; height: 26px; }
+    .c-name { font-size: 32px; }
+    .c-stats { gap: 8px; }
+    .c-stat { padding: 10px 6px; }
+    .c-stat-val { font-size: 22px; }
+    .c-msg { font-size: 11px; padding: 10px 14px; }
+    .c-close-btn { padding: 12px; min-height: 48px; }
+  }
+
+  /* Small phones */
+  @media (max-width: 390px) {
+    .left-panel { padding: 16px 16px 12px; }
+    .step-heading { font-size: 24px; }
+    .svc-grid { grid-template-columns: 1fr; }
+    .barber-cards { grid-template-columns: 1fr; }
+    .brand-name { font-size: 16px; }
+    .queue-fab { bottom: 14px; right: 14px; padding: 10px 14px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
@@ -827,6 +960,40 @@
     <button class="c-close-btn" onclick="closeOverlay()">Done — I See My Spot →</button>
     <div class="c-auto">Auto-closing in <span id="c-countdown">20</span>s</div>
     <div class="c-bar"><div class="c-fill" id="c-fill"></div></div>
+  </div>
+</div>
+
+<!-- ========== MOBILE: Queue FAB + Bottom Sheet ========== -->
+<button class="queue-fab" id="queue-fab" onclick="openQueueSheet()">
+  <div class="queue-fab-dot"></div>
+  <span id="fab-count">4 waiting</span>
+</button>
+
+<div class="queue-sheet-backdrop" id="queue-sheet-backdrop" onclick="closeQueueSheet()"></div>
+<div class="queue-sheet" id="queue-sheet">
+  <div class="queue-sheet-handle"></div>
+  <div class="q-header">
+    <div class="q-title">Live Queue</div>
+    <div class="q-meta">
+      Real-time
+      <span class="q-badge" id="m-q-badge">4 waiting</span>
+    </div>
+  </div>
+  <div class="barber-lanes" id="m-barber-lanes"></div>
+  <div class="q-list" id="m-q-list"></div>
+  <div class="q-footer">
+    <div class="q-stat">
+      <div class="q-stat-label">Total</div>
+      <div class="q-stat-val" id="m-f-total">4</div>
+    </div>
+    <div class="q-stat">
+      <div class="q-stat-label">Shortest</div>
+      <div class="q-stat-val" id="m-f-shortest">~20 min</div>
+    </div>
+    <div class="q-stat">
+      <div class="q-stat-label">Longest</div>
+      <div class="q-stat-val" id="m-f-longest">~55 min</div>
+    </div>
   </div>
 </div>
 
@@ -1221,15 +1388,34 @@ function renderQueuePanel(highlightName) {
   }
 
   const total = globalQueue.length;
-  document.getElementById('live-count').textContent = `${total} waiting`;
-  document.getElementById('q-badge').textContent = `${total} waiting`;
+  const totalTxt = `${total} waiting`;
+  document.getElementById('live-count').textContent = totalTxt;
+  document.getElementById('q-badge').textContent = totalTxt;
   document.getElementById('f-total').textContent = total;
+
+  // Mobile sync
+  const fabCount = document.getElementById('fab-count');
+  if (fabCount) fabCount.textContent = totalTxt;
+  const mqBadge = document.getElementById('m-q-badge');
+  if (mqBadge) mqBadge.textContent = totalTxt;
+  const mTotal = document.getElementById('m-f-total');
+  if (mTotal) mTotal.textContent = total;
 
   const waits = BARBERS.map(b => calcBarberWait(b.id)).filter(w => w < Infinity);
   if (waits.length > 0) {
-    document.getElementById('f-shortest').textContent = `~${Math.min(...waits)} min`;
-    document.getElementById('f-longest').textContent = `~${Math.max(...waits)} min`;
+    const shortest = `~${Math.min(...waits)} min`;
+    const longest = `~${Math.max(...waits)} min`;
+    document.getElementById('f-shortest').textContent = shortest;
+    document.getElementById('f-longest').textContent = longest;
+    const mS = document.getElementById('m-f-shortest');
+    const mL = document.getElementById('m-f-longest');
+    if (mS) mS.textContent = shortest;
+    if (mL) mL.textContent = longest;
   }
+
+  // Clone queue list to mobile sheet
+  const mql = document.getElementById('m-q-list');
+  if (mql) mql.innerHTML = el.innerHTML;
 }
 
 function calcClientWaitPosition(item, globalIndex) {
@@ -1245,7 +1431,7 @@ function renderBarberLanes() {
   const el = document.getElementById('barber-lanes');
   const maxWait = Math.max(...BARBERS.map(b => calcBarberWait(b.id)).filter(w => w < Infinity));
 
-  el.innerHTML = BARBERS.map(b => {
+  const html = BARBERS.map(b => {
     const wait = calcBarberWait(b.id);
     const qCount = b.queue.length;
     const pct = maxWait > 0 ? Math.round((wait / maxWait) * 100) : 0;
@@ -1269,6 +1455,12 @@ function renderBarberLanes() {
       </div>
     `;
   }).join('');
+
+  el.innerHTML = html;
+
+  // Sync mobile sheet
+  const mbl = document.getElementById('m-barber-lanes');
+  if (mbl) mbl.innerHTML = html;
 }
 
 // ===================== OVERLAY =====================
@@ -1323,6 +1515,26 @@ function resetWizard() {
 
   // Re-init service grid for next visit
   switchSvcCat('Signature Cuts');
+}
+
+// ===================== MOBILE QUEUE SHEET =====================
+
+function openQueueSheet() {
+  const backdrop = document.getElementById('queue-sheet-backdrop');
+  const sheet = document.getElementById('queue-sheet');
+  backdrop.style.display = 'block';
+  requestAnimationFrame(() => {
+    backdrop.classList.add('show');
+    sheet.classList.add('show');
+  });
+}
+
+function closeQueueSheet() {
+  const backdrop = document.getElementById('queue-sheet-backdrop');
+  const sheet = document.getElementById('queue-sheet');
+  backdrop.classList.remove('show');
+  sheet.classList.remove('show');
+  setTimeout(() => { backdrop.style.display = 'none'; }, 300);
 }
 
 // ===================== INIT =====================
