@@ -776,6 +776,290 @@
     .brand-name { font-size: 16px; }
     .queue-fab { bottom: 14px; right: 14px; padding: 10px 14px; font-size: 11px; }
   }
+
+  /* ===================== SETTINGS GEAR ===================== */
+  .settings-btn {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: transparent; border: 1px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cream-muted); opacity: 0.25; cursor: pointer;
+    transition: opacity 0.2s, border-color 0.2s;
+    touch-action: manipulation; flex-shrink: 0; margin-left: 8px;
+  }
+  .settings-btn:hover { opacity: 0.6; border-color: var(--border); }
+
+  /* ===================== LOGIN OVERLAY ===================== */
+  .login-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(8,7,6,0.92); backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .login-overlay.show { opacity: 1; pointer-events: all; }
+
+  .login-card {
+    background: var(--black3); border: 1px solid var(--gold-border);
+    border-radius: 18px; padding: 36px 32px; max-width: 360px; width: 90%;
+    transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .login-overlay.show .login-card { transform: scale(1); }
+
+  .login-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 24px;
+    font-weight: 600; color: var(--cream); margin-bottom: 4px; text-align: center;
+  }
+  .login-sub { font-size: 11px; color: var(--cream-muted); text-align: center; margin-bottom: 22px; }
+
+  .login-error {
+    display: none; font-size: 11px; color: var(--red);
+    background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.22);
+    border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; text-align: center;
+  }
+  .login-error.show { display: block; }
+
+  .login-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .login-actions .join-btn { flex: 1; min-height: 46px; padding: 12px; font-size: 12px; }
+  .login-cancel {
+    flex: 1; min-height: 46px; background: var(--black4); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--cream-muted); font-size: 12px;
+    font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.07em; transition: all 0.18s;
+    touch-action: manipulation;
+  }
+  .login-cancel:hover { border-color: var(--border-md); color: var(--cream-dim); }
+
+  /* ===================== DASHBOARD OVERLAY ===================== */
+  .dash-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--black); display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    overflow: hidden;
+  }
+  .dash-overlay.show { opacity: 1; pointer-events: all; }
+
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 28px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .dash-header-left { display: flex; align-items: center; gap: 12px; }
+  .dash-header-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px;
+    font-weight: 600; color: var(--cream);
+  }
+  .dash-header-sub { font-size: 10px; color: var(--cream-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .dash-close {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--black3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cream-dim); cursor: pointer; transition: all 0.18s;
+    touch-action: manipulation;
+  }
+  .dash-close:hover { border-color: var(--gold-border); color: var(--cream); }
+
+  /* DASHBOARD TABS */
+  .dash-tabs {
+    display: flex; gap: 5px; padding: 16px 28px 0; flex-shrink: 0;
+    background: var(--black3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); margin: 16px 28px 0; padding: 4px;
+  }
+  .dash-tab {
+    flex: 1; background: transparent; border: none; border-radius: 7px;
+    padding: 11px 8px; min-height: 44px;
+    font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    color: var(--cream-muted); cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; letter-spacing: 0.07em; touch-action: manipulation;
+  }
+  .dash-tab.active { background: var(--gold); color: var(--black); }
+
+  /* DASHBOARD CONTENT */
+  .dash-content { flex: 1; overflow-y: auto; padding: 20px 28px 28px; }
+  .dash-content::-webkit-scrollbar { width: 3px; }
+  .dash-content::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 2px; }
+
+  .dash-section { display: none; }
+  .dash-section.active { display: block; }
+
+  .dash-add-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .dash-add-bar-title { font-size: 13px; font-weight: 600; color: var(--cream-dim); }
+
+  .dash-add-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--gold-dim); border: 1px solid var(--gold-border);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    color: var(--gold); cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.06em; transition: all 0.18s; touch-action: manipulation;
+  }
+  .dash-add-btn:hover { background: var(--gold); color: var(--black); }
+
+  /* DASHBOARD TABLE */
+  .dash-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+  .dash-table th {
+    font-size: 9px; color: var(--cream-muted); text-transform: uppercase;
+    letter-spacing: 0.12em; font-weight: 600; text-align: left;
+    padding: 0 12px 6px; border-bottom: 1px solid var(--border);
+  }
+  .dash-table td {
+    background: var(--black3); padding: 12px; font-size: 12px; color: var(--cream-dim);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .dash-table td:first-child { border-left: 1px solid var(--border); border-radius: 8px 0 0 8px; }
+  .dash-table td:last-child { border-right: 1px solid var(--border); border-radius: 0 8px 8px 0; }
+
+  .dash-table .cat-cell { color: var(--gold); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+  .dash-table .name-cell { font-weight: 600; color: var(--cream); }
+
+  .dash-action {
+    width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--black4); color: var(--cream-muted); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s; touch-action: manipulation; margin-left: 4px;
+  }
+  .dash-action:hover { border-color: var(--gold-border); color: var(--cream); }
+  .dash-action.danger:hover { border-color: rgba(248,113,113,0.4); color: var(--red); }
+
+  /* DASHBOARD FORM */
+  .dash-form {
+    background: var(--black3); border: 1px solid var(--gold-border);
+    border-radius: var(--radius-sm); padding: 18px; margin-bottom: 16px;
+    display: none;
+  }
+  .dash-form.show { display: block; animation: slideDown 0.2s ease; }
+  .dash-form-title { font-size: 12px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+  .dash-form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .dash-form-row .field { flex: 1; min-width: 120px; margin-bottom: 0; }
+  .dash-form-row .finput { min-height: 42px; padding: 10px 12px; font-size: 13px; }
+  .dash-form-row .flabel { margin-bottom: 5px; }
+  .dash-form-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .dash-form-actions .join-btn { flex: none; min-height: 42px; padding: 10px 20px; font-size: 11px; }
+  .dash-form-actions .login-cancel { flex: none; min-height: 42px; padding: 10px 16px; }
+
+  /* STATUS TOGGLE */
+  .status-select {
+    background: var(--black4); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 8px; font-size: 11px;
+    color: var(--cream-dim); font-family: 'DM Sans', sans-serif;
+    cursor: pointer; -webkit-appearance: none; appearance: none;
+  }
+
+  /* EXPORT SECTION */
+  .dash-export-bar {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .dash-export-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-dim); border: 1px solid var(--green-border);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    color: var(--green); cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.06em; transition: all 0.18s; touch-action: manipulation;
+  }
+  .dash-export-btn:hover { background: var(--green); color: var(--black); }
+  .dash-clear-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    color: var(--red); cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.06em; transition: all 0.18s; touch-action: manipulation;
+  }
+  .dash-clear-btn:hover { background: var(--red); color: var(--black); }
+  .dash-count { font-size: 11px; color: var(--cream-muted); margin-left: auto; }
+
+  .dash-empty {
+    text-align: center; padding: 40px 20px; color: var(--cream-muted); font-size: 12px;
+  }
+
+  /* QUEUE MANAGEMENT IN DASHBOARD */
+  .dq-lane {
+    margin-bottom: 20px;
+  }
+  .dq-lane-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--black3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+  .dq-lane-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dq-lane-name { font-size: 13px; font-weight: 600; color: var(--cream); }
+  .dq-lane-status { font-size: 10px; color: var(--cream-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-left: auto; }
+  .dq-lane-body {
+    border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    overflow: hidden;
+  }
+  .dq-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .dq-item:last-child { border-bottom: none; }
+  .dq-item:hover { background: var(--cream-faint); }
+  .dq-item-pos {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--black4); border: 1px solid var(--border-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--cream-muted); flex-shrink: 0;
+  }
+  .dq-item-info { flex: 1; min-width: 0; }
+  .dq-item-name { font-size: 13px; font-weight: 600; color: var(--cream); }
+  .dq-item-svc { font-size: 11px; color: var(--cream-muted); }
+  .dq-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .dq-toggle {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 8px; min-height: 34px;
+    font-size: 10px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    cursor: pointer; transition: all 0.18s; border: 1px solid;
+    touch-action: manipulation;
+  }
+  .dq-toggle-accept {
+    background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold);
+  }
+  .dq-toggle-accept:hover { background: var(--gold); color: var(--black); }
+  .dq-toggle-accept.active {
+    background: var(--gold); color: var(--black); border-color: var(--gold);
+  }
+  .dq-toggle-served {
+    background: var(--green-dim); border-color: var(--green-border); color: var(--green);
+  }
+  .dq-toggle-served:hover { background: var(--green); color: var(--black); }
+  .dq-toggle-served.active {
+    background: var(--green); color: var(--black); border-color: var(--green);
+  }
+
+  .dq-item.accepted { background: rgba(201,168,76,0.04); }
+  .dq-item.accepted .dq-item-pos {
+    background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold);
+  }
+  .dq-item.served {
+    background: rgba(74,222,128,0.04); opacity: 0.5;
+  }
+  .dq-item.served .dq-item-pos {
+    background: var(--green-dim); border-color: var(--green-border); color: var(--green);
+  }
+  .dq-item.served .dq-item-name,
+  .dq-item.served .dq-item-svc { text-decoration: line-through; }
+
+  .dq-lane-empty {
+    padding: 16px; text-align: center; font-size: 11px; color: var(--cream-muted);
+  }
+
+  @media (max-width: 768px) {
+    .dash-header { padding: 16px 20px; }
+    .dash-tabs { margin: 12px 20px 0; }
+    .dash-content { padding: 16px 20px 20px; }
+    .dash-form-row { flex-direction: column; }
+    .dash-form-row .field { min-width: 100%; }
+    .dash-table { font-size: 11px; }
+    .dash-table td { padding: 10px 8px; }
+    .dq-item { padding: 10px 12px; gap: 8px; }
+    .dq-toggle { padding: 6px 10px; font-size: 9px; }
+  }
 </style>
 </head>
 <body>
@@ -798,6 +1082,9 @@
         <div class="pulse"></div>
         <span id="live-count">4 waiting</span>
       </div>
+      <button class="settings-btn" onclick="openDashboard()" aria-label="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
 
     <!-- STEP NAV -->
@@ -869,7 +1156,7 @@
         <div class="step-body">
           <div class="step-heading">Select a Service</div>
 
-          <div class="cat-tabs">
+          <div class="cat-tabs" id="cat-tabs">
             <button class="cat-tab active" id="cat-cuts" onclick="switchSvcCat('Signature Cuts')">Cuts</button>
             <button class="cat-tab" id="cat-shaves" onclick="switchSvcCat('Shaves & Beards')">Shaves</button>
             <button class="cat-tab" id="cat-facial" onclick="switchSvcCat('Facial & Treatments')">Facial</button>
@@ -997,17 +1284,177 @@
   </div>
 </div>
 
+<!-- ========== LOGIN OVERLAY ========== -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-title">Owner Login</div>
+    <div class="login-sub">Dashboard access requires authentication</div>
+    <div class="login-error" id="login-error">Incorrect name or password</div>
+    <div class="field">
+      <label class="flabel" for="login-name">Name</label>
+      <input class="finput" id="login-name" type="text" placeholder="Owner name" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label class="flabel" for="login-pass">Password</label>
+      <input class="finput" id="login-pass" type="password" placeholder="••••" autocomplete="off"
+             onkeydown="if(event.key==='Enter')attemptLogin()" />
+    </div>
+    <div class="login-actions">
+      <button class="login-cancel" onclick="closeLogin()">Cancel</button>
+      <button class="join-btn" onclick="attemptLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD OVERLAY ========== -->
+<div class="dash-overlay" id="dash-overlay">
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <div>
+        <div class="dash-header-title">Owner Dashboard</div>
+        <div class="dash-header-sub">Manage services, barbers &amp; client data</div>
+      </div>
+    </div>
+    <button class="dash-close" onclick="closeDashboard()" aria-label="Close dashboard">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="dash-tabs">
+    <button class="dash-tab active" onclick="switchDashTab('queue')">Queue</button>
+    <button class="dash-tab" onclick="switchDashTab('services')">Services</button>
+    <button class="dash-tab" onclick="switchDashTab('barbers')">Barbers</button>
+    <button class="dash-tab" onclick="switchDashTab('clients')">Client Data</button>
+  </div>
+
+  <div class="dash-content">
+
+    <!-- QUEUE MANAGEMENT SECTION -->
+    <div class="dash-section active" id="dash-queue">
+      <div class="dash-add-bar">
+        <div class="dash-add-bar-title" id="dash-queue-count">0 in queue</div>
+        <button class="dash-add-btn danger-btn" onclick="clearQueue()" style="background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.2);color:var(--red);">Clear Queue</button>
+      </div>
+      <div id="dash-queue-lanes"></div>
+      <div class="dash-empty" id="dash-queue-empty" style="display:none;">Queue is empty — no customers waiting</div>
+    </div>
+
+    <!-- SERVICES SECTION -->
+    <div class="dash-section" id="dash-services">
+      <div class="dash-add-bar">
+        <div class="dash-add-bar-title" id="svc-count-label">16 services</div>
+        <button class="dash-add-btn" onclick="toggleSvcForm()">+ Add Service</button>
+      </div>
+      <div class="dash-form" id="svc-form">
+        <div class="dash-form-title" id="svc-form-title">Add Service</div>
+        <div class="dash-form-row">
+          <div class="field">
+            <label class="flabel">Category *</label>
+            <input class="finput" id="svc-f-cat" type="text" placeholder="e.g. Signature Cuts" list="cat-list" autocomplete="off" />
+            <datalist id="cat-list"></datalist>
+          </div>
+          <div class="field">
+            <label class="flabel">Service Name *</label>
+            <input class="finput" id="svc-f-name" type="text" placeholder="e.g. Fade" autocomplete="off" />
+          </div>
+        </div>
+        <div class="dash-form-row">
+          <div class="field">
+            <label class="flabel">Price *</label>
+            <input class="finput" id="svc-f-price" type="text" placeholder="e.g. $35" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label class="flabel">Duration (min) *</label>
+            <input class="finput" id="svc-f-dur" type="number" placeholder="e.g. 35" autocomplete="off" />
+          </div>
+        </div>
+        <input type="hidden" id="svc-f-edit-idx" value="-1" />
+        <div class="dash-form-actions">
+          <button class="join-btn" onclick="saveSvc()">Save</button>
+          <button class="login-cancel" onclick="toggleSvcForm()">Cancel</button>
+        </div>
+      </div>
+      <table class="dash-table">
+        <thead><tr><th>Category</th><th>Service</th><th>Price</th><th>Duration</th><th></th></tr></thead>
+        <tbody id="svc-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- BARBERS SECTION -->
+    <div class="dash-section" id="dash-barbers">
+      <div class="dash-add-bar">
+        <div class="dash-add-bar-title" id="barber-count-label">3 barbers</div>
+        <button class="dash-add-btn" onclick="toggleBarberForm()">+ Add Barber</button>
+      </div>
+      <div class="dash-form" id="barber-form">
+        <div class="dash-form-title" id="barber-form-title">Add Barber</div>
+        <div class="dash-form-row">
+          <div class="field">
+            <label class="flabel">Name *</label>
+            <input class="finput" id="barber-f-name" type="text" placeholder="e.g. James" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label class="flabel">Status</label>
+            <select class="finput status-select" id="barber-f-status">
+              <option value="Available">Available</option>
+              <option value="Busy">Busy</option>
+              <option value="Break">On Break</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" id="barber-f-edit-idx" value="-1" />
+        <div class="dash-form-actions">
+          <button class="join-btn" onclick="saveBarber()">Save</button>
+          <button class="login-cancel" onclick="toggleBarberForm()">Cancel</button>
+        </div>
+      </div>
+      <table class="dash-table">
+        <thead><tr><th>Name</th><th>Status</th><th>Wait</th><th>Queued</th><th></th></tr></thead>
+        <tbody id="barber-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- CLIENT DATA SECTION -->
+    <div class="dash-section" id="dash-clients">
+      <div class="dash-export-bar">
+        <button class="dash-export-btn" onclick="exportCSV()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <button class="dash-clear-btn" onclick="clearClientLog()">Clear All</button>
+        <div class="dash-count" id="client-count-label">0 records</div>
+      </div>
+      <table class="dash-table">
+        <thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Barber</th><th>Date/Time</th></tr></thead>
+        <tbody id="client-table-body"></tbody>
+      </table>
+      <div class="dash-empty" id="client-empty">No check-in records yet</div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 // ===================== SVG ICONS =====================
 const SVG = {
   scissors: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
   scissorsSm: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
   check: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`,
+  pencil: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  trash: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
 };
+
+// ===================== PERSISTENCE =====================
+
+function loadData(key, defaults) {
+  try { const d = localStorage.getItem(key); if (d) return JSON.parse(d); } catch(e) {}
+  return JSON.parse(JSON.stringify(defaults));
+}
+function saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
 
 // ===================== DATA =====================
 
-const SERVICES = [
+const DEFAULT_SERVICES = [
   { cat: 'Signature Cuts',      name: 'Mens Haircut',            price: '$35',  dur: 35 },
   { cat: 'Signature Cuts',      name: 'Mens Haircut + Beard',    price: '$55',  dur: 50 },
   { cat: 'Signature Cuts',      name: 'Student Haircut (10-17)', price: '$30',  dur: 30 },
@@ -1026,11 +1473,26 @@ const SERVICES = [
   { cat: 'Facial & Treatments', name: 'Threading',               price: '$10',  dur: 15 },
 ];
 
-const BARBERS = [
-  { id: 'ahmed',  name: 'Ahmed',  status: 'Busy', timeLeft: 18, queue: [35, 30] },
-  { id: 'marcus', name: 'Marcus', status: 'Busy', timeLeft: 8,  queue: [20] },
-  { id: 'jordan', name: 'Jordan', status: 'Busy', timeLeft: 50, queue: [] },
+const DEFAULT_BARBERS = [
+  { id: 'ahmed',  name: 'Ahmed' },
+  { id: 'marcus', name: 'Marcus' },
+  { id: 'jordan', name: 'Jordan' },
 ];
+
+let SERVICES = loadData('sblends_services', DEFAULT_SERVICES);
+let barberConfigs = loadData('sblends_barbers', DEFAULT_BARBERS);
+
+// Runtime state for barbers (not persisted)
+let BARBERS = barberConfigs.map(bc => ({
+  ...bc,
+  status: 'Available',
+  timeLeft: 0,
+  queue: [],
+}));
+
+// Seed demo runtime state
+const demoState = { ahmed: { status:'Busy', timeLeft:18, queue:[35,30] }, marcus: { status:'Busy', timeLeft:8, queue:[20] }, jordan: { status:'Busy', timeLeft:50, queue:[] } };
+BARBERS.forEach(b => { if (demoState[b.id]) Object.assign(b, demoState[b.id]); });
 
 let globalQueue = [
   { id: 1, name: 'Tyler B.',  svc: 'Fade',                 dur: 35, barberId: 'ahmed',  pos: 1 },
@@ -1038,6 +1500,8 @@ let globalQueue = [
   { id: 3, name: 'David L.',  svc: 'Mens Haircut',         dur: 30, barberId: 'ahmed',  pos: 3 },
   { id: 4, name: 'Sam K.',    svc: 'Mens Haircut + Beard', dur: 50, barberId: 'jordan', pos: 4 },
 ];
+
+let clientLog = loadData('sblends_client_log', []);
 
 const MOCK_CLIENTS = {
   '4165550123': { name: 'Marcus Johnson', visits: 12, lastVisit: '2 weeks ago' },
@@ -1070,24 +1534,38 @@ const S = {
   customerType: 'new',
   svcCat: 'Signature Cuts',
   selectedSvc: null,
-  selectedBarber: null,   // null = "any"
+  selectedBarber: null,
   retCustomer: null,
   countdownInt: null,
   countdownTO: null,
   lastAddedName: null,
 };
 
+// ===================== DYNAMIC CATEGORY TABS =====================
+
+function getCategories() {
+  return [...new Set(SERVICES.map(s => s.cat))];
+}
+
+function renderCategoryTabs() {
+  const cats = getCategories();
+  const container = document.getElementById('cat-tabs');
+  container.innerHTML = cats.map((cat, i) =>
+    `<button class="cat-tab${i === 0 ? ' active' : ''}" data-cat="${cat}" onclick="switchSvcCat('${cat.replace(/'/g,"\\'")}')">${cat}</button>`
+  ).join('');
+  if (!S.svcCat || !cats.includes(S.svcCat)) S.svcCat = cats[0] || '';
+}
+
 // ===================== STEP NAVIGATION =====================
 
 function goToStep(n) {
   document.getElementById(`step-${S.step}`).classList.remove('active');
   S.step = n;
-  const next = document.getElementById(`step-${n}`);
-  next.classList.add('active');
+  document.getElementById(`step-${n}`).classList.add('active');
   updateStepNav();
 
-  // Render step content on enter
-  if (n === 2 && !document.getElementById('wizard-svcs').children.length) {
+  if (n === 2) {
+    renderCategoryTabs();
     renderSvcGrid(S.svcCat);
   }
   if (n === 3) {
@@ -1152,13 +1630,9 @@ function findMe() {
 
 function switchSvcCat(cat) {
   S.svcCat = cat;
-  const catMap = {
-    'Signature Cuts':     'cat-cuts',
-    'Shaves & Beards':    'cat-shaves',
-    'Facial & Treatments':'cat-facial',
-  };
-  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-  document.getElementById(catMap[cat]).classList.add('active');
+  document.querySelectorAll('#cat-tabs .cat-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
   renderSvcGrid(cat);
 }
 
@@ -1230,7 +1704,7 @@ function renderWizardBarbers() {
   });
 
   el.innerHTML = html;
-  S.selectedBarber = null; // default = any
+  S.selectedBarber = null;
 }
 
 function selectWizardBarber(el, barberId) {
@@ -1261,7 +1735,7 @@ function wizardSubmit() {
   } else {
     if (!S.retCustomer) return;
     name = S.retCustomer.name;
-    phone = '';
+    phone = document.getElementById('ret-phone').value.trim();
     isNew = false;
   }
   if (!S.selectedSvc) return;
@@ -1283,6 +1757,10 @@ function addToQueue(name, phone, svc, chosenBarberId, isNew) {
   const position = globalQueue.length + 1;
   const shortName = name.split(' ')[0] + (name.split(' ')[1] ? ' ' + name.split(' ')[1][0] + '.' : '');
   globalQueue.push({ id: Date.now(), name: shortName, svc: svc.name, dur: svc.dur, barberId: assignedId, pos: position });
+
+  // Log client data for export
+  clientLog.push({ name, phone: phone || '', service: svc.name, barber: barber.name, timestamp: new Date().toISOString() });
+  saveData('sblends_client_log', clientLog);
 
   S.lastAddedName = shortName;
 
@@ -1497,7 +1975,7 @@ function resetWizard() {
 
   S.step = 1;
   S.customerType = 'new';
-  S.svcCat = 'Signature Cuts';
+  S.svcCat = getCategories()[0] || '';
   S.selectedSvc = null;
   S.selectedBarber = null;
   S.retCustomer = null;
@@ -1507,14 +1985,13 @@ function resetWizard() {
   document.getElementById('s1-next').disabled = true;
   document.getElementById('s2-next').disabled = true;
 
-  // Reset to step 1 without transition
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step-1').classList.add('active');
   document.getElementById('wizard-svcs').innerHTML = '';
   updateStepNav();
 
-  // Re-init service grid for next visit
-  switchSvcCat('Signature Cuts');
+  renderCategoryTabs();
+  renderSvcGrid(S.svcCat);
 }
 
 // ===================== MOBILE QUEUE SHEET =====================
@@ -1537,8 +2014,421 @@ function closeQueueSheet() {
   setTimeout(() => { backdrop.style.display = 'none'; }, 300);
 }
 
+// ===================== DASHBOARD: LOGIN =====================
+
+const OWNER_NAME = 'ashrif';
+const OWNER_PASS = '1234';
+
+function openDashboard() {
+  document.getElementById('login-overlay').classList.add('show');
+  document.getElementById('login-name').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+  setTimeout(() => document.getElementById('login-name').focus(), 200);
+}
+
+function closeLogin() {
+  document.getElementById('login-overlay').classList.remove('show');
+}
+
+function attemptLogin() {
+  const name = document.getElementById('login-name').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  if (name === OWNER_NAME && pass === OWNER_PASS) {
+    document.getElementById('login-overlay').classList.remove('show');
+    document.getElementById('dash-overlay').classList.add('show');
+    switchDashTab('queue');
+    renderDashQueue();
+    renderDashSvcTable();
+    renderDashBarberTable();
+    renderDashClientTable();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+  }
+}
+
+function closeDashboard() {
+  document.getElementById('dash-overlay').classList.remove('show');
+}
+
+// ===================== DASHBOARD: TAB SWITCH =====================
+
+function switchDashTab(tab) {
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  const tabs = document.querySelectorAll('.dash-tab');
+  const tabMap = { queue: 0, services: 1, barbers: 2, clients: 3 };
+  if (tabs[tabMap[tab]]) tabs[tabMap[tab]].classList.add('active');
+  const sectionEl = document.getElementById(`dash-${tab}`);
+  if (sectionEl) sectionEl.classList.add('active');
+
+  if (tab === 'queue') renderDashQueue();
+  if (tab === 'services') renderDashSvcTable();
+  if (tab === 'barbers') renderDashBarberTable();
+  if (tab === 'clients') renderDashClientTable();
+}
+
+// ===================== DASHBOARD: QUEUE MANAGEMENT =====================
+
+function renderDashQueue() {
+  const container = document.getElementById('dash-queue-lanes');
+  const emptyEl = document.getElementById('dash-queue-empty');
+  const countEl = document.getElementById('dash-queue-count');
+
+  const total = globalQueue.length;
+  countEl.textContent = `${total} in queue`;
+
+  if (total === 0) {
+    container.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  let html = '';
+  BARBERS.forEach(b => {
+    const barberItems = globalQueue.filter(q => q.barberId === b.id);
+    const dotClass = b.status === 'Available' ? 'dot-available' : b.status === 'Busy' ? 'dot-busy' : 'dot-break';
+
+    html += `<div class="dq-lane">`;
+    html += `<div class="dq-lane-header">
+      <div class="dq-lane-dot ${dotClass}"></div>
+      <div class="dq-lane-name">${b.name}</div>
+      <div class="dq-lane-status">${barberItems.length} customer${barberItems.length !== 1 ? 's' : ''}</div>
+    </div>`;
+    html += `<div class="dq-lane-body">`;
+
+    if (barberItems.length === 0) {
+      html += `<div class="dq-lane-empty">No customers in queue</div>`;
+    } else {
+      barberItems.forEach((item, i) => {
+        const acceptState = item._accepted ? ' accepted' : '';
+        const servedState = item._served ? ' served' : '';
+        const cls = servedState || acceptState;
+
+        html += `<div class="dq-item${cls}" data-qid="${item.id}">
+          <div class="dq-item-pos">${i + 1}</div>
+          <div class="dq-item-info">
+            <div class="dq-item-name">${item.name}</div>
+            <div class="dq-item-svc">${item.svc} · ~${item.dur} min</div>
+          </div>
+          <div class="dq-item-actions">
+            <button class="dq-toggle dq-toggle-accept${item._accepted ? ' active' : ''}"
+                    onclick="toggleAccept(${item.id})"
+                    ${item._served ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>
+              ${item._accepted ? '✓ Accepted' : 'Accept'}
+            </button>
+            <button class="dq-toggle dq-toggle-served${item._served ? ' active' : ''}"
+                    onclick="toggleServed(${item.id})"
+                    ${!item._accepted ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>
+              ${item._served ? '✓ Served' : 'Served'}
+            </button>
+          </div>
+        </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleAccept(queueId) {
+  const item = globalQueue.find(q => q.id === queueId);
+  if (!item || item._served) return;
+  item._accepted = !item._accepted;
+  if (!item._accepted) item._served = false;
+
+  renderDashQueue();
+  renderQueuePanel(S.lastAddedName);
+  renderBarberLanes();
+}
+
+function toggleServed(queueId) {
+  const item = globalQueue.find(q => q.id === queueId);
+  if (!item || !item._accepted) return;
+  item._served = !item._served;
+
+  if (item._served) {
+    setTimeout(() => {
+      const idx = globalQueue.findIndex(q => q.id === queueId);
+      if (idx !== -1) {
+        globalQueue.splice(idx, 1);
+        const barber = BARBERS.find(b => b.id === item.barberId);
+        if (barber) {
+          if (barber.queue.length > 0) barber.queue.shift();
+          if (barber.queue.length === 0 && globalQueue.filter(q => q.barberId === barber.id).length === 0) {
+            barber.status = 'Available';
+            barber.timeLeft = 0;
+          } else if (globalQueue.filter(q => q.barberId === barber.id).length > 0) {
+            barber.status = 'Busy';
+            barber.timeLeft = barber.queue.length > 0 ? barber.queue[0] : 0;
+          }
+        }
+        renderDashQueue();
+        renderQueuePanel(S.lastAddedName);
+        renderBarberLanes();
+        renderWizardBarbers();
+      }
+    }, 1200);
+  }
+
+  renderDashQueue();
+  renderQueuePanel(S.lastAddedName);
+  renderBarberLanes();
+}
+
+function clearQueue() {
+  if (!confirm('Clear the entire queue? This cannot be undone.')) return;
+  globalQueue.length = 0;
+  BARBERS.forEach(b => {
+    b.queue = [];
+    b.status = 'Available';
+    b.timeLeft = 0;
+  });
+  renderDashQueue();
+  renderQueuePanel(null);
+  renderBarberLanes();
+  renderWizardBarbers();
+}
+
+// ===================== DASHBOARD: SERVICES CRUD =====================
+
+function renderDashSvcTable() {
+  const body = document.getElementById('svc-table-body');
+  const catList = document.getElementById('cat-list');
+  document.getElementById('svc-count-label').textContent = `${SERVICES.length} services`;
+
+  const cats = [...new Set(SERVICES.map(s => s.cat))];
+  catList.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+
+  body.innerHTML = SERVICES.map((s, i) =>
+    `<tr>
+      <td class="cat-cell">${s.cat}</td>
+      <td class="name-cell">${s.name}</td>
+      <td>${s.price}</td>
+      <td>~${s.dur} min</td>
+      <td style="white-space:nowrap;">
+        <button class="dash-action" onclick="editSvc(${i})" aria-label="Edit service">${SVG.pencil}</button>
+        <button class="dash-action danger" onclick="deleteSvc(${i})" aria-label="Delete service">${SVG.trash}</button>
+      </td>
+    </tr>`
+  ).join('');
+}
+
+function toggleSvcForm() {
+  const form = document.getElementById('svc-form');
+  const isOpen = form.classList.contains('show');
+  if (isOpen) {
+    form.classList.remove('show');
+    clearSvcForm();
+  } else {
+    form.classList.add('show');
+    document.getElementById('svc-form-title').textContent = 'Add Service';
+    document.getElementById('svc-f-edit-idx').value = '-1';
+  }
+}
+
+function clearSvcForm() {
+  document.getElementById('svc-f-cat').value = '';
+  document.getElementById('svc-f-name').value = '';
+  document.getElementById('svc-f-price').value = '';
+  document.getElementById('svc-f-dur').value = '';
+  document.getElementById('svc-f-edit-idx').value = '-1';
+}
+
+function saveSvc() {
+  const cat = document.getElementById('svc-f-cat').value.trim();
+  const name = document.getElementById('svc-f-name').value.trim();
+  const price = document.getElementById('svc-f-price').value.trim();
+  const dur = parseInt(document.getElementById('svc-f-dur').value, 10);
+  if (!cat || !name || !price || !dur) return;
+
+  const idx = parseInt(document.getElementById('svc-f-edit-idx').value, 10);
+  if (idx >= 0) {
+    SERVICES[idx] = { cat, name, price, dur };
+  } else {
+    SERVICES.push({ cat, name, price, dur });
+  }
+
+  saveData('sblends_services', SERVICES);
+  document.getElementById('svc-form').classList.remove('show');
+  clearSvcForm();
+  renderDashSvcTable();
+  renderCategoryTabs();
+  renderSvcGrid(S.svcCat);
+}
+
+function editSvc(i) {
+  const s = SERVICES[i];
+  document.getElementById('svc-form').classList.add('show');
+  document.getElementById('svc-form-title').textContent = 'Edit Service';
+  document.getElementById('svc-f-cat').value = s.cat;
+  document.getElementById('svc-f-name').value = s.name;
+  document.getElementById('svc-f-price').value = s.price;
+  document.getElementById('svc-f-dur').value = s.dur;
+  document.getElementById('svc-f-edit-idx').value = i;
+  document.getElementById('svc-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteSvc(i) {
+  if (!confirm(`Delete "${SERVICES[i].name}"?`)) return;
+  SERVICES.splice(i, 1);
+  saveData('sblends_services', SERVICES);
+  renderDashSvcTable();
+  renderCategoryTabs();
+  renderSvcGrid(S.svcCat);
+}
+
+// ===================== DASHBOARD: BARBERS CRUD =====================
+
+function renderDashBarberTable() {
+  const body = document.getElementById('barber-table-body');
+  document.getElementById('barber-count-label').textContent = `${BARBERS.length} barbers`;
+
+  body.innerHTML = BARBERS.map((b, i) => {
+    const wait = calcBarberWait(b.id);
+    const qCount = b.queue.length;
+    const dotClass = b.status === 'Available' ? 'dot-available' : b.status === 'Busy' ? 'dot-busy' : 'dot-break';
+    return `<tr>
+      <td class="name-cell">${b.name}</td>
+      <td>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span class="barber-status-dot ${dotClass}"></span>
+          ${b.status}
+        </span>
+      </td>
+      <td>~${wait === Infinity ? '—' : wait} min</td>
+      <td>${qCount} ahead</td>
+      <td style="white-space:nowrap;">
+        <button class="dash-action" onclick="editBarber(${i})" aria-label="Edit barber">${SVG.pencil}</button>
+        <button class="dash-action danger" onclick="deleteBarber(${i})" aria-label="Delete barber">${SVG.trash}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleBarberForm() {
+  const form = document.getElementById('barber-form');
+  const isOpen = form.classList.contains('show');
+  if (isOpen) {
+    form.classList.remove('show');
+    clearBarberForm();
+  } else {
+    form.classList.add('show');
+    document.getElementById('barber-form-title').textContent = 'Add Barber';
+    document.getElementById('barber-f-edit-idx').value = '-1';
+  }
+}
+
+function clearBarberForm() {
+  document.getElementById('barber-f-name').value = '';
+  document.getElementById('barber-f-status').value = 'Available';
+  document.getElementById('barber-f-edit-idx').value = '-1';
+}
+
+function saveBarber() {
+  const name = document.getElementById('barber-f-name').value.trim();
+  const status = document.getElementById('barber-f-status').value;
+  if (!name) return;
+
+  const idx = parseInt(document.getElementById('barber-f-edit-idx').value, 10);
+  if (idx >= 0) {
+    BARBERS[idx].name = name;
+    BARBERS[idx].status = status;
+    barberConfigs[idx] = { id: BARBERS[idx].id, name };
+  } else {
+    const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+    BARBERS.push({ id, name, status, timeLeft: 0, queue: [] });
+    barberConfigs.push({ id, name });
+  }
+
+  saveData('sblends_barbers', barberConfigs);
+  document.getElementById('barber-form').classList.remove('show');
+  clearBarberForm();
+  renderDashBarberTable();
+  renderBarberLanes();
+  renderWizardBarbers();
+}
+
+function editBarber(i) {
+  const b = BARBERS[i];
+  document.getElementById('barber-form').classList.add('show');
+  document.getElementById('barber-form-title').textContent = 'Edit Barber';
+  document.getElementById('barber-f-name').value = b.name;
+  document.getElementById('barber-f-status').value = b.status;
+  document.getElementById('barber-f-edit-idx').value = i;
+  document.getElementById('barber-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteBarber(i) {
+  if (!confirm(`Remove "${BARBERS[i].name}"?`)) return;
+  const removedId = BARBERS[i].id;
+  BARBERS.splice(i, 1);
+  barberConfigs.splice(i, 1);
+  globalQueue = globalQueue.filter(q => q.barberId !== removedId);
+  saveData('sblends_barbers', barberConfigs);
+  renderDashBarberTable();
+  renderBarberLanes();
+  renderWizardBarbers();
+  renderQueuePanel(S.lastAddedName);
+}
+
+// ===================== DASHBOARD: CLIENT DATA =====================
+
+function renderDashClientTable() {
+  const body = document.getElementById('client-table-body');
+  const emptyEl = document.getElementById('client-empty');
+  document.getElementById('client-count-label').textContent = `${clientLog.length} records`;
+
+  if (clientLog.length === 0) {
+    body.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  body.innerHTML = clientLog.slice().reverse().map(c => {
+    const d = new Date(c.timestamp);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' +
+                    d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `<tr>
+      <td class="name-cell">${c.name}</td>
+      <td>${c.phone || '—'}</td>
+      <td>${c.service}</td>
+      <td>${c.barber}</td>
+      <td>${dateStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  if (clientLog.length === 0) return;
+  const headers = ['Name', 'Phone', 'Service', 'Barber', 'Date/Time'];
+  const rows = clientLog.map(c => [
+    c.name, c.phone || '', c.service, c.barber,
+    new Date(c.timestamp).toLocaleString()
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sblends-clients-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearClientLog() {
+  if (!confirm('Delete all client records? This cannot be undone.')) return;
+  clientLog.length = 0;
+  saveData('sblends_client_log', clientLog);
+  renderDashClientTable();
+}
+
 // ===================== INIT =====================
-renderSvcGrid('Signature Cuts');
+renderCategoryTabs();
+renderSvcGrid(S.svcCat);
 renderWizardBarbers();
 renderQueuePanel(null);
 renderBarberLanes();
